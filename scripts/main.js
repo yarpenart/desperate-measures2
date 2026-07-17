@@ -93,8 +93,31 @@ ui.notifications.info(
 });
 
 Hooks.on(
+"renderActorSheetV2",
+(app, html)=>{
+
+    console.log(
+        "Desperate Measures | Actor Sheet Rendered",
+        app.actor.name
+    );
+
+
+    DesperateButton.createButton(
+        app,
+        html
+    );
+
+});
+
+Hooks.on(
 "renderActorSheet",
 (app, html)=>{
+
+    console.log(
+        "Desperate Measures | Legacy Actor Sheet Rendered",
+        app.actor.name
+    );
+
 
     DesperateButton.createButton(
         app,

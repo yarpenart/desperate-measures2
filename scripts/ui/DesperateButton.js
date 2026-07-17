@@ -2,6 +2,9 @@ export class DesperateButton {
 
 
     static createButton(app, html) {
+        console.log(
+    "Desperate Measures | Creating Button"
+);
 
 
         const actor = app.actor;
