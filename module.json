@@ -1,2 +1,28 @@
 {
+  "id": "desperate-measures",
+  "title": "Desperate Measures",
+  "description": "Critical Role Desperate Measures homebrew mechanics for Foundry VTT",
+  "version": "0.1.0",
+  "authors": [
+    {
+      "name": "YarpenArt"
+    }
+  ],
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "esmodules": [
+    "scripts/main.js"
+  ],
+  "styles": [
+    "styles/desperate.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ]
 }
