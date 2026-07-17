@@ -4,6 +4,8 @@ from "./managers/BloodiedManager.js";
 import { DesperateManager }
 from "./managers/DesperateManager.js";
 
+import { DesperateButton }
+from "./ui/DesperateButton.js";
 
 console.log(
     "Desperate Measures | Module Loaded"
@@ -87,5 +89,16 @@ ui.notifications.info(
 
 });
 
+
+});
+
+Hooks.on(
+"renderActorSheet",
+(app, html)=>{
+
+    DesperateButton.createButton(
+        app,
+        html
+    );
 
 });

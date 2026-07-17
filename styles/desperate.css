@@ -1,0 +1,33 @@
+.desperate-button {
+
+    background: darkred;
+    color:white;
+    border-radius:8px;
+    padding:5px;
+
+}
+
+.desperate-container {
+
+    margin-top:10px;
+    padding:10px;
+
+    border:2px solid darkred;
+    border-radius:10px;
+
+    background:
+    rgba(80,0,0,0.15);
+
+}
+
+
+.desperate-container button {
+
+    width:100%;
+
+    background:#7a0000;
+    color:white;
+
+    font-weight:bold;
+
+}
