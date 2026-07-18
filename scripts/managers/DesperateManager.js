@@ -1,3 +1,6 @@
+import { SpellSlotManager }
+  from "./SpellSlotManager.js";
+  
 const MODULE_ID = "desperate-measures";
 
 export class DesperateManager {
@@ -131,6 +134,16 @@ export class DesperateManager {
           "a postać nie ma wystarczająco wolnych pól."
       };
     }
+    if (
+  measureId === "recoverSpellSlot" &&
+  !SpellSlotManager.hasRecoverableSlot(actor)
+) {
+  return {
+    allowed: false,
+    reason:
+      "Postać nie ma zużytego slotu zaklęcia poziomu 1–5."
+  };
+}
 
     return {
       allowed: true,

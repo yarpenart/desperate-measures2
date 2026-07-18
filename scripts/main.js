@@ -7,6 +7,9 @@ import { DesperateManager }
 import { DesperateButton }
   from "./ui/DesperateButton.js";
 
+  import { SpellSlotManager }
+  from "./managers/SpellSlotManager.js";
+
 const MODULE_ID = "desperate-measures";
 
 console.log(
@@ -41,10 +44,21 @@ Hooks.once("init", () => {
       DesperateManager.getPendingEffects(actor),
 
     removePendingEffect: (actor, effectId) =>
-      DesperateManager.removePendingEffect(
-        actor,
-        effectId
-      )
+  DesperateManager.removePendingEffect(
+    actor,
+    effectId
+  ),
+
+recoverSpellSlot: (actor, level) =>
+  SpellSlotManager.recoverSlot(
+    actor,
+    level
+  ),
+
+getRecoverableSpellSlots: (actor) =>
+  SpellSlotManager
+    .getAvailableSlots(actor)
+    .filter((slot) => slot.canRecover)
   };
 });
 

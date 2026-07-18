@@ -1,7 +1,10 @@
 import { DesperateManager }
   from "../managers/DesperateManager.js";
 
-export class DesperateDialog {
+import { SpellSlotDialog }
+  from "./SpellSlotDialog.js";
+
+  export class DesperateDialog {
   static open(actor) {
     if (!actor) {
       ui.notifications.warn(
@@ -234,13 +237,20 @@ export class DesperateDialog {
     if (!confirmed) return;
 
     const result =
-      await DesperateManager.useMeasure(
-        actor,
-        measureId
-      );
+  await DesperateManager.useMeasure(
+    actor,
+    measureId
+  );
 
-    if (!result) return;
+if (!result) return;
 
-    await parentDialog.close();
+await parentDialog.close();
+
+if (measureId === "recoverSpellSlot") {
+  await SpellSlotDialog.open(
+    actor,
+    result.pendingEffect
+  );
+}
   }
 }
