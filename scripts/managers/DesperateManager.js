@@ -262,7 +262,7 @@ export class DesperateManager {
 
       if (!appliedEffect) return null;
     }
-    
+
     if (measureId === MEASURE_IDS.REROLL_ATTACK) {
       appliedEffect =
         await RollManager.applyRerollAttack(actor);
@@ -275,8 +275,13 @@ export class DesperateManager {
       measure.cost
     );
 
+        const immediateMeasures = [
+      MEASURE_IDS.PLUS_FIVE,
+      MEASURE_IDS.REROLL_ATTACK
+    ];
+
     const pendingEffect =
-      measureId === MEASURE_IDS.PLUS_FIVE
+      immediateMeasures.includes(measureId)
         ? null
         : await this.addPendingEffect(
             actor,
