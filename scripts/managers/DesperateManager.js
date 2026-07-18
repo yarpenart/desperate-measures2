@@ -8,6 +8,11 @@ import {
 import { SpellSlotManager }
   from "./SpellSlotManager.js";
 
+import { RollManager }
+  from "./RollManager.js";
+
+export class DesperateManager {
+
 export class DesperateManager {
   static MEASURES = {
     dashDisengage: {
