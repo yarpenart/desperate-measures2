@@ -29,7 +29,22 @@ Hooks.once("init", () => {
       DesperateManager.addFailures(actor, amount),
 
     resetFailures: (actor) =>
-      DesperateManager.reset(actor)
+      DesperateManager.reset(actor),
+
+    use: (actor, measureId) =>
+      DesperateManager.useMeasure(
+        actor,
+        measureId
+      ),
+
+    getPendingEffects: (actor) =>
+      DesperateManager.getPendingEffects(actor),
+
+    removePendingEffect: (actor, effectId) =>
+      DesperateManager.removePendingEffect(
+        actor,
+        effectId
+      )
   };
 });
 
@@ -67,8 +82,19 @@ Hooks.on(
         changes,
         "system.attributes.death.failure"
       );
+      
+      const desperateFlagsChanged =
+  foundry.utils.hasProperty(
+    changes,
+    "flags.desperate-measures"
+  );
 
-    if (hpChanged || deathFailuresChanged) {
+    if (
+  hpChanged ||
+  deathFailuresChanged ||
+  desperateFlagsChanged
+) {
+
       for (const sheet of Object.values(actor.apps ?? {})) {
         sheet.render(false);
       }

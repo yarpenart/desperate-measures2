@@ -1,10 +1,83 @@
+const MODULE_ID = "desperate-measures";
+
 export class DesperateManager {
+  static MEASURES = {
+    dashDisengage: {
+      id: "dashDisengage",
+      name: "Dash + Disengage",
+      cost: 1,
+      icon: "fa-person-running",
+      description:
+        "Natychmiast możesz wykonać Dash i Disengage jako dodatkowe akcje."
+    },
+
+    plusFive: {
+      id: "plusFive",
+      name: "+5 do nieudanego testu",
+      cost: 1,
+      icon: "fa-dice-d20",
+      description:
+        "Dodaj +5 do właśnie nieudanego testu d20."
+    },
+
+    rerollAttack: {
+      id: "rerollAttack",
+      name: "Przerzut nieudanego ataku",
+      cost: 1,
+      icon: "fa-rotate",
+      description:
+        "Przerzuć właśnie nieudany rzut ataku."
+    },
+
+    maximizeDamage: {
+      id: "maximizeDamage",
+      name: "Maksymalne obrażenia",
+      cost: 2,
+      icon: "fa-burst",
+      description:
+        "Jeżeli atak trafi, każda kość obrażeń zadaje maksymalną wartość."
+    },
+
+    extraAction: {
+      id: "extraAction",
+      name: "Dodatkowa akcja Attack lub Magic",
+      cost: 3,
+      icon: "fa-bolt",
+      description:
+        "Natychmiast wykonaj dodatkową akcję Attack albo Magic."
+    },
+
+    recoverSpellSlot: {
+      id: "recoverSpellSlot",
+      name: "Odzyskaj slot zaklęcia",
+      cost: 3,
+      icon: "fa-wand-magic-sparkles",
+      description:
+        "Odzyskaj zużyty slot zaklęcia poziomu od 1 do 5."
+    }
+  };
+
   static getFailures(actor) {
     if (!actor) return 0;
 
     return Number(
       actor.system?.attributes?.death?.failure ?? 0
     );
+  }
+
+  static getMeasure(measureId) {
+    return this.MEASURES[measureId] ?? null;
+  }
+
+  static getPendingEffects(actor) {
+    if (!actor) return [];
+
+    const effects = actor.getFlag(
+      MODULE_ID,
+      "pendingEffects"
+    );
+
+    return Array.isArray(effects) ? effects : [];
   }
 
   static canAddFailures(actor, amount) {
@@ -18,10 +91,57 @@ export class DesperateManager {
     );
   }
 
+  static canUseMeasure(actor, measureId) {
+    const measure = this.getMeasure(measureId);
+
+    if (!actor || !measure) {
+      return {
+        allowed: false,
+        reason: "Nie znaleziono postaci lub wybranej opcji."
+      };
+    }
+
+    const hp = actor.system?.attributes?.hp;
+    const currentHP = Number(hp?.value ?? 0);
+    const maximumHP = Number(hp?.max ?? 0);
+
+    if (maximumHP <= 0) {
+      return {
+        allowed: false,
+        reason: "Postać nie ma poprawnie ustawionych maksymalnych HP."
+      };
+    }
+
+    if (
+      currentHP <= 0 ||
+      currentHP > maximumHP / 2
+    ) {
+      return {
+        allowed: false,
+        reason:
+          "Desperate Measures można użyć tylko przy połowie maksymalnych HP lub mniej."
+      };
+    }
+
+    if (!this.canAddFailures(actor, measure.cost)) {
+      return {
+        allowed: false,
+        reason:
+          `Ta opcja kosztuje ${measure.cost} porażki death save, ` +
+          "a postać nie ma wystarczająco wolnych pól."
+      };
+    }
+
+    return {
+      allowed: true,
+      reason: ""
+    };
+  }
+
   static async addFailures(actor, amount) {
     if (!actor) {
       throw new Error(
-        "Desperate Measures | No actor provided."
+        "Desperate Measures | Nie przekazano aktora."
       );
     }
 
@@ -29,13 +149,14 @@ export class DesperateManager {
 
     if (!this.canAddFailures(actor, cost)) {
       ui.notifications.warn(
-        "Nie możesz zaznaczyć tylu niezdanych death save’ów."
+        "Nie możesz zaznaczyć tylu porażek death save."
       );
 
       return this.getFailures(actor);
     }
 
-    const newValue = this.getFailures(actor) + cost;
+    const newValue =
+      this.getFailures(actor) + cost;
 
     await actor.update({
       "system.attributes.death.failure": newValue
@@ -44,11 +165,159 @@ export class DesperateManager {
     return newValue;
   }
 
+  static async addPendingEffect(actor, measureId) {
+    const current = this.getPendingEffects(actor);
+
+    const effect = {
+      id: foundry.utils.randomID(),
+      measureId,
+      createdAt: Date.now(),
+      createdBy: game.user.id
+    };
+
+    await actor.setFlag(
+      MODULE_ID,
+      "pendingEffects",
+      [...current, effect]
+    );
+
+    return effect;
+  }
+
+  static async removePendingEffect(actor, effectId) {
+    const remaining =
+      this.getPendingEffects(actor).filter(
+        (effect) => effect.id !== effectId
+      );
+
+    await actor.setFlag(
+      MODULE_ID,
+      "pendingEffects",
+      remaining
+    );
+
+    return remaining;
+  }
+
+  static async useMeasure(actor, measureId) {
+    const measure = this.getMeasure(measureId);
+    const validation =
+      this.canUseMeasure(actor, measureId);
+
+    if (!validation.allowed) {
+      ui.notifications.warn(validation.reason);
+      return null;
+    }
+
+    const failures = await this.addFailures(
+      actor,
+      measure.cost
+    );
+
+    const pendingEffect = await this.addPendingEffect(
+      actor,
+      measureId
+    );
+
+    await this.createUsageMessage(
+      actor,
+      measure,
+      failures
+    );
+
+    ui.notifications.info(
+      `${actor.name} używa: ${measure.name}`
+    );
+
+    return {
+      actor,
+      measure,
+      failures,
+      pendingEffect
+    };
+  }
+
+  static async createUsageMessage(
+    actor,
+    measure,
+    failures
+  ) {
+    const users = game.users.filter((user) => {
+      if (user.isGM) return true;
+
+      return actor.testUserPermission(
+        user,
+        CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER
+      );
+    });
+
+    const whisper = [
+      ...new Set(users.map((user) => user.id))
+    ];
+
+    const skulls =
+      "☠".repeat(failures) +
+      "○".repeat(Math.max(0, 3 - failures));
+
+    const content = `
+      <section class="desperate-measures-chat">
+        <header>
+          <i class="fa-solid fa-heart-crack"></i>
+          <strong>Desperate Measures</strong>
+        </header>
+
+        <p>
+          <strong>${actor.name}</strong>
+          wykorzystuje:
+        </p>
+
+        <h3>${measure.name}</h3>
+
+        <p>${measure.description}</p>
+
+        <hr>
+
+        <p>
+          Koszt:
+          <strong>
+            ${measure.cost}
+            ${measure.cost === 1 ? "porażka" : "porażki"}
+            death save
+          </strong>
+        </p>
+
+        <p>
+          Aktualny stan:
+          <span class="desperate-measures-chat-skulls">
+            ${skulls}
+          </span>
+        </p>
+      </section>
+    `;
+
+    await ChatMessage.create({
+      user: game.user.id,
+
+      speaker: ChatMessage.getSpeaker({
+        actor
+      }),
+
+      content,
+
+      whisper
+    });
+  }
+
   static async reset(actor) {
     if (!actor) return;
 
     await actor.update({
       "system.attributes.death.failure": 0
     });
+
+    await actor.unsetFlag(
+      MODULE_ID,
+      "pendingEffects"
+    );
   }
 }

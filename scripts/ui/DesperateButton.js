@@ -4,6 +4,9 @@ import { BloodiedManager }
 import { DesperateManager }
   from "../managers/DesperateManager.js";
 
+import { DesperateDialog }
+  from "./DesperateDialog.js";
+
 export class DesperateButton {
   static createButton(app, html) {
     const actor =
@@ -101,12 +104,10 @@ export class DesperateButton {
     `;
 
     panel
-      .querySelector(".desperate-measures-open")
-      ?.addEventListener("click", () => {
-        ui.notifications.info(
-          "Menu Desperate Measures powstanie w następnym etapie."
-        );
-      });
+  .querySelector(".desperate-measures-open")
+  ?.addEventListener("click", () => {
+    DesperateDialog.open(actor);
+  });
 
     const insertionPoint =
       root.querySelector("form") ??

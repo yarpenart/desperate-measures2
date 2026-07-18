@@ -1,33 +1,243 @@
-.desperate-button {
+.desperate-measures-panel {
+  margin: 12px;
+  padding: 12px;
 
-    background: darkred;
-    color:white;
-    border-radius:8px;
-    padding:5px;
+  border: 2px solid #7b1515;
+  border-radius: 8px;
 
+  background:
+    linear-gradient(
+      135deg,
+      rgba(110, 12, 12, 0.18),
+      rgba(20, 5, 5, 0.08)
+    );
+
+  box-shadow:
+    inset 0 0 12px rgba(120, 0, 0, 0.18);
 }
 
-.desperate-container {
+.desperate-measures-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 
-    margin-top:10px;
-    padding:10px;
+  margin-bottom: 10px;
 
-    border:2px solid darkred;
-    border-radius:10px;
-
-    background:
-    rgba(80,0,0,0.15);
-
+  color: #8f1717;
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
+.desperate-measures-status,
+.desperate-measures-failures {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 
-.desperate-container button {
+  margin: 6px 0;
+}
 
-    width:100%;
+.desperate-measures-status strong {
+  opacity: 0.7;
+}
 
-    background:#7a0000;
-    color:white;
+.desperate-measures-status strong.is-bloodied {
+  color: #b31313;
+  opacity: 1;
+}
 
-    font-weight:bold;
+.desperate-measures-skulls {
+  display: inline-flex;
+  gap: 6px;
 
+  font-size: 1.15rem;
+}
+
+.desperate-measures-skulls [data-marked="true"] {
+  color: #a10f0f;
+}
+
+.desperate-measures-skulls [data-marked="false"] {
+  font-size: 0.7rem;
+  opacity: 0.35;
+}
+
+.desperate-measures-open {
+  width: 100%;
+  margin-top: 10px;
+
+  font-weight: 700;
+}
+
+.desperate-measures-open:not(:disabled) {
+  color: white;
+  background: #7b1515;
+}
+
+.desperate-measures-open:not(:disabled):hover {
+  background: #9c1a1a;
+}
+
+.desperate-measures-hint {
+  margin: 8px 0 0;
+
+  text-align: center;
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+.desperate-measures-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.desperate-measures-dialog-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+
+  padding: 10px;
+
+  border: 1px solid rgba(120, 20, 20, 0.5);
+  border-radius: 6px;
+
+  background: rgba(100, 0, 0, 0.08);
+}
+
+.desperate-measures-dialog-warning {
+  margin: 0;
+  padding: 8px;
+
+  border-left: 3px solid #9c1a1a;
+
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.desperate-measure-tier {
+  border: 1px solid rgba(120, 20, 20, 0.45);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.desperate-measure-tier > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 8px 10px;
+
+  background: rgba(100, 0, 0, 0.15);
+
+  font-weight: 700;
+}
+
+.desperate-measure-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  padding: 8px;
+}
+
+.desperate-measure-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  width: 100%;
+  min-height: 52px;
+  padding: 8px;
+
+  text-align: left;
+}
+
+.desperate-measure-choice:not(:disabled) {
+  border-color: #7b1515;
+}
+
+.desperate-measure-choice:not(:disabled):hover {
+  background: rgba(130, 20, 20, 0.18);
+}
+
+.desperate-measure-choice:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.desperate-measure-choice-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+
+  border-radius: 50%;
+
+  background: rgba(120, 15, 15, 0.18);
+
+  font-size: 1.1rem;
+}
+
+.desperate-measure-choice-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.desperate-measure-choice-text strong {
+  font-size: 0.95rem;
+}
+
+.desperate-measure-choice-text small {
+  line-height: 1.25;
+  opacity: 0.75;
+}
+
+.desperate-measures-confirm {
+  text-align: center;
+}
+
+.desperate-measures-confirm h2 {
+  color: #8f1717;
+}
+
+.desperate-measures-confirm-warning {
+  padding: 8px;
+
+  border: 1px solid #8f1717;
+  border-radius: 4px;
+
+  font-weight: 700;
+}
+
+.desperate-measures-chat {
+  padding: 8px;
+
+  border-left: 4px solid #8f1717;
+}
+
+.desperate-measures-chat header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #8f1717;
+  text-transform: uppercase;
+}
+
+.desperate-measures-chat h3 {
+  margin: 8px 0;
+}
+
+.desperate-measures-chat-skulls {
+  color: #9c1a1a;
+  font-size: 1.1rem;
+  letter-spacing: 3px;
 }
