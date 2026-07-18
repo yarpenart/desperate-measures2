@@ -144,6 +144,15 @@ export class DesperateManager {
           "a postać nie ma wystarczająco wolnych pól."
       };
     }
+    
+    if (measureId === MEASURE_IDS.PLUS_FIVE) {
+      const rollValidation =
+        RollManager.canApplyPlusFive(actor);
+
+      if (!rollValidation.allowed) {
+        return rollValidation;
+      }
+    }
     if (
   measureId ===
   MEASURE_IDS.RECOVER_SPELL_SLOT &&
@@ -223,14 +232,27 @@ export class DesperateManager {
     return remaining;
   }
 
-  static async useMeasure(actor, measureId) {
+      static async useMeasure(actor, measureId) {
     const measure = this.getMeasure(measureId);
+
     const validation =
       this.canUseMeasure(actor, measureId);
 
     if (!validation.allowed) {
-      ui.notifications.warn(validation.reason);
+      ui.notifications.warn(
+        validation.reason
+      );
+
       return null;
+    }
+
+    let appliedEffect = null;
+
+    if (measureId === MEASURE_IDS.PLUS_FIVE) {
+      appliedEffect =
+        await RollManager.applyPlusFive(actor);
+
+      if (!appliedEffect) return null;
     }
 
     const failures = await this.addFailures(
@@ -238,10 +260,13 @@ export class DesperateManager {
       measure.cost
     );
 
-    const pendingEffect = await this.addPendingEffect(
-      actor,
-      measureId
-    );
+    const pendingEffect =
+      measureId === MEASURE_IDS.PLUS_FIVE
+        ? null
+        : await this.addPendingEffect(
+            actor,
+            measureId
+          );
 
     await this.createUsageMessage(
       actor,
@@ -257,7 +282,8 @@ export class DesperateManager {
       actor,
       measure,
       failures,
-      pendingEffect
+      pendingEffect,
+      appliedEffect
     };
   }
 
