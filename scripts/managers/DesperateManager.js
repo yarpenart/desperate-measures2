@@ -235,7 +235,7 @@ export class DesperateManager {
             sourceRollId: sourceRoll.id,
             sourceIdentifier:
               sourceRoll.identifier ?? null,
-            expiresAt: createdAt + 120000
+            expiresAt: createdAt + 180000
           }
         : {})
     };
