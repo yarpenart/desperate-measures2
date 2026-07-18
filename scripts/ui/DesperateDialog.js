@@ -4,15 +4,20 @@ import { DesperateManager }
 import { SpellSlotDialog }
   from "./SpellSlotDialog.js";
 
-  import {
+import {
   MEASURE_IDS
 } from "../constants/constants.js";
 
-  export class DesperateDialog {
+import {
+  t,
+  deathSaveFailureLabel
+} from "../i18n.js";
+
+export class DesperateDialog {
   static open(actor) {
     if (!actor) {
       ui.notifications.warn(
-        "Nie znaleziono postaci."
+        t("dialog.characterNotFound")
       );
 
       return;
@@ -32,7 +37,7 @@ import { SpellSlotDialog }
       buttons: {
         close: {
           icon: '<i class="fa-solid fa-xmark"></i>',
-          label: "Zamknij"
+          label: t("dialog.close")
         }
       },
 
@@ -108,13 +113,9 @@ import { SpellSlotDialog }
           <section class="desperate-measure-tier">
             <header>
               <span>
-                Koszt: ${cost}
-                ${
-                  Number(cost) === 1
-                    ? "porażka"
-                    : "porażki"
-                }
-                death save
+                ${t("common.cost")}:
+                ${cost}
+                ${deathSaveFailureLabel(cost)}
               </span>
 
               <span>
@@ -138,22 +139,21 @@ import { SpellSlotDialog }
           </span>
 
           <span>
-            HP:
+            ${t("common.hp")}:
             ${actor.system.attributes.hp.value}
             /
             ${actor.system.attributes.hp.max}
           </span>
 
           <span>
-            Death Saves:
+            ${t("dialog.deathSaves")}:
             ${"☠".repeat(failures)}
             ${"○".repeat(3 - failures)}
           </span>
         </div>
 
         <p class="desperate-measures-dialog-warning">
-          Wybranie opcji natychmiast zaznaczy jej koszt
-          jako niezdane death save’y.
+          ${t("dialog.selectionWarning")}
         </p>
 
         ${sections}
@@ -201,12 +201,12 @@ import { SpellSlotDialog }
     if (!measure) return;
 
     const confirmed = await Dialog.confirm({
-      title: "Potwierdź Desperate Measure",
+      title: t("dialog.confirmTitle"),
 
       content: `
         <div class="desperate-measures-confirm">
           <p>
-            Czy na pewno chcesz użyć:
+            ${t("dialog.confirmQuestion")}
           </p>
 
           <h2>${measure.name}</h2>
@@ -214,20 +214,15 @@ import { SpellSlotDialog }
           <p>${measure.description}</p>
 
           <p>
-            Koszt:
+            ${t("common.cost")}:
             <strong>
               ${measure.cost}
-              ${
-                measure.cost === 1
-                  ? "porażka"
-                  : "porażki"
-              }
-              death save
+              ${deathSaveFailureLabel(measure.cost)}
             </strong>
           </p>
 
           <p class="desperate-measures-confirm-warning">
-            Te pola zostaną zaznaczone natychmiast.
+            ${t("dialog.confirmWarning")}
           </p>
         </div>
       `,
@@ -241,23 +236,23 @@ import { SpellSlotDialog }
     if (!confirmed) return;
 
     const result =
-  await DesperateManager.useMeasure(
-    actor,
-    measureId
-  );
+      await DesperateManager.useMeasure(
+        actor,
+        measureId
+      );
 
-if (!result) return;
+    if (!result) return;
 
-await parentDialog.close();
+    await parentDialog.close();
 
-if (
-  measureId ===
-  MEASURE_IDS.RECOVER_SPELL_SLOT
-) {
-  await SpellSlotDialog.open(
-    actor,
-    result.pendingEffect
-  );
-}
+    if (
+      measureId ===
+      MEASURE_IDS.RECOVER_SPELL_SLOT
+    ) {
+      await SpellSlotDialog.open(
+        actor,
+        result.pendingEffect
+      );
+    }
   }
 }
