@@ -1,4 +1,7 @@
-const MODULE_ID = "desperate-measures";
+import {
+  MODULE_ID,
+  SETTINGS
+} from "../constants/constants.js";
 
 export class SpellSlotManager {
   static MIN_LEVEL = 1;
@@ -111,6 +114,13 @@ export class SpellSlotManager {
     actor,
     recovery
   ) {
+    const showChat = game.settings.get(
+  MODULE_ID,
+  SETTINGS.SHOW_CHAT_MESSAGES
+);
+
+if (!showChat) return;
+
     const users = game.users.filter((user) => {
       if (user.isGM) return true;
 

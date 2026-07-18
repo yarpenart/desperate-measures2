@@ -4,6 +4,10 @@ import { DesperateManager }
 import { SpellSlotDialog }
   from "./SpellSlotDialog.js";
 
+  import {
+  MEASURE_IDS
+} from "../constants/constants.js";
+
   export class DesperateDialog {
   static open(actor) {
     if (!actor) {
@@ -246,7 +250,10 @@ if (!result) return;
 
 await parentDialog.close();
 
-if (measureId === "recoverSpellSlot") {
+if (
+  measureId ===
+  MEASURE_IDS.RECOVER_SPELL_SLOT
+) {
   await SpellSlotDialog.open(
     actor,
     result.pendingEffect

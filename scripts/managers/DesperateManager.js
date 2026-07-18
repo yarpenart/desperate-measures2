@@ -1,12 +1,17 @@
+import {
+  MODULE_ID,
+  SETTINGS,
+  FLAGS,
+  MEASURE_IDS
+} from "../constants/constants.js";
+
 import { SpellSlotManager }
   from "./SpellSlotManager.js";
-  
-const MODULE_ID = "desperate-measures";
 
 export class DesperateManager {
   static MEASURES = {
     dashDisengage: {
-      id: "dashDisengage",
+      id: MEASURE_IDS.DASH_DISENGAGE,
       name: "Dash + Disengage",
       cost: 1,
       icon: "fa-person-running",
@@ -15,7 +20,7 @@ export class DesperateManager {
     },
 
     plusFive: {
-      id: "plusFive",
+      id: MEASURE_IDS.PLUS_FIVE,
       name: "+5 do nieudanego testu",
       cost: 1,
       icon: "fa-dice-d20",
@@ -24,7 +29,7 @@ export class DesperateManager {
     },
 
     rerollAttack: {
-      id: "rerollAttack",
+      id: MEASURE_IDS.REROLL_ATTACK,
       name: "Przerzut nieudanego ataku",
       cost: 1,
       icon: "fa-rotate",
@@ -33,7 +38,7 @@ export class DesperateManager {
     },
 
     maximizeDamage: {
-      id: "maximizeDamage",
+      id: MEASURE_IDS.MAXIMIZE_DAMAGE,
       name: "Maksymalne obrażenia",
       cost: 2,
       icon: "fa-burst",
@@ -42,7 +47,7 @@ export class DesperateManager {
     },
 
     extraAction: {
-      id: "extraAction",
+      id: MEASURE_IDS.EXTRA_ACTION,
       name: "Dodatkowa akcja Attack lub Magic",
       cost: 3,
       icon: "fa-bolt",
@@ -51,7 +56,7 @@ export class DesperateManager {
     },
 
     recoverSpellSlot: {
-      id: "recoverSpellSlot",
+      id: MEASURE_IDS.RECOVER_SPELL_SLOT,
       name: "Odzyskaj slot zaklęcia",
       cost: 3,
       icon: "fa-wand-magic-sparkles",
@@ -77,7 +82,7 @@ export class DesperateManager {
 
     const effects = actor.getFlag(
       MODULE_ID,
-      "pendingEffects"
+      FLAGS.PENDING_EFFECTS
     );
 
     return Array.isArray(effects) ? effects : [];
@@ -135,7 +140,8 @@ export class DesperateManager {
       };
     }
     if (
-  measureId === "recoverSpellSlot" &&
+  measureId ===
+  MEASURE_IDS.RECOVER_SPELL_SLOT &&
   !SpellSlotManager.hasRecoverableSlot(actor)
 ) {
   return {
@@ -190,7 +196,7 @@ export class DesperateManager {
 
     await actor.setFlag(
       MODULE_ID,
-      "pendingEffects",
+      FLAGS.PENDING_EFFECTS,
       [...current, effect]
     );
 
@@ -205,7 +211,7 @@ export class DesperateManager {
 
     await actor.setFlag(
       MODULE_ID,
-      "pendingEffects",
+      FLAGS.PENDING_EFFECTS,
       remaining
     );
 
@@ -255,6 +261,12 @@ export class DesperateManager {
     measure,
     failures
   ) {
+    const showChat = game.settings.get(
+  MODULE_ID,
+  SETTINGS.SHOW_CHAT_MESSAGES
+);
+
+if (!showChat) return;
     const users = game.users.filter((user) => {
       if (user.isGM) return true;
 
