@@ -23,12 +23,15 @@ import {
 } from "./hooks/rest-hooks.js";
 
 import {
-  BloodiedManager
-} from "./managers/BloodiedManager.js";
-
-import {
   registerRollHooks
 } from "./hooks/roll-hooks.js";
+
+import {
+  registerDamageHooks
+} from "./hooks/damage-hooks.js";
+
+import { BloodiedManager }
+  from "./managers/BloodiedManager.js";
 
 console.log(
   `${MODULE_NAME} | Main module imported successfully`
@@ -40,17 +43,13 @@ Hooks.once("init", () => {
   );
 
   registerSettings();
-
-  console.log(
-    `${MODULE_NAME} | Settings registered`
-  );
-
   registerAPI();
   registerActorHooks();
   registerSheetHooks();
   registerRestHooks();
   registerRollHooks();
-
+  registerDamageHooks();
+  
   console.log(
     `${MODULE_NAME} | Init completed`
   );
@@ -62,7 +61,9 @@ Hooks.once("ready", async () => {
   );
 
   for (const actor of game.actors) {
-    if (actor.type !== "character") continue;
+    if (actor.type !== "character") {
+      continue;
+    }
 
     await BloodiedManager.update(actor);
   }
