@@ -11,61 +11,96 @@ import { SpellSlotManager }
 import { RollManager }
   from "./RollManager.js";
 
+import {
+  t,
+  deathSaveFailureLabel
+} from "../i18n.js";
+
 export class DesperateManager {
 
   static MEASURES = {
     dashDisengage: {
       id: MEASURE_IDS.DASH_DISENGAGE,
-      name: "Dash + Disengage",
+      get name() {
+        return t("measure.dashDisengage.name");
+      },
       cost: 1,
       icon: "fa-person-running",
-      description:
-        "Natychmiast możesz wykonać Dash i Disengage jako dodatkowe akcje."
+      get description() {
+        return t(
+          "measure.dashDisengage.description"
+        );
+      }
     },
 
     plusFive: {
       id: MEASURE_IDS.PLUS_FIVE,
-      name: "+5 do nieudanego testu",
+      get name() {
+        return t("measure.plusFive.name");
+      },
       cost: 1,
       icon: "fa-dice-d20",
-      description:
-        "Dodaj +5 do właśnie nieudanego testu d20."
+      get description() {
+        return t(
+          "measure.plusFive.description"
+        );
+      }
     },
 
     rerollAttack: {
       id: MEASURE_IDS.REROLL_ATTACK,
-      name: "Przerzut nieudanego ataku",
+      get name() {
+        return t("measure.rerollAttack.name");
+      },
       cost: 1,
       icon: "fa-rotate",
-      description:
-        "Przerzuć właśnie nieudany rzut ataku."
+      get description() {
+        return t(
+          "measure.rerollAttack.description"
+        );
+      }
     },
 
     maximizeDamage: {
       id: MEASURE_IDS.MAXIMIZE_DAMAGE,
-      name: "Maksymalne obrażenia",
+      get name() {
+        return t("measure.maximizeDamage.name");
+      },
       cost: 2,
       icon: "fa-burst",
-      description:
-        "Jeżeli atak trafi, każda kość obrażeń zadaje maksymalną wartość."
+      get description() {
+        return t(
+          "measure.maximizeDamage.description"
+        );
+      }
     },
 
     extraAction: {
       id: MEASURE_IDS.EXTRA_ACTION,
-      name: "Dodatkowa akcja Attack lub Magic",
+      get name() {
+        return t("measure.extraAction.name");
+      },
       cost: 3,
       icon: "fa-bolt",
-      description:
-        "Natychmiast wykonaj dodatkową akcję Attack albo Magic."
+      get description() {
+        return t(
+          "measure.extraAction.description"
+        );
+      }
     },
 
     recoverSpellSlot: {
       id: MEASURE_IDS.RECOVER_SPELL_SLOT,
-      name: "Odzyskaj slot zaklęcia",
+      get name() {
+        return t("measure.recoverSpellSlot.name");
+      },
       cost: 3,
       icon: "fa-wand-magic-sparkles",
-      description:
-        "Odzyskaj zużyty slot zaklęcia poziomu od 1 do 5."
+      get description() {
+        return t(
+          "measure.recoverSpellSlot.description"
+        );
+      }
     }
   };
 
@@ -109,7 +144,9 @@ export class DesperateManager {
     if (!actor || !measure) {
       return {
         allowed: false,
-        reason: "Nie znaleziono postaci lub wybranej opcji."
+        reason: t(
+          "validation.missingActorOrMeasure"
+        )
       };
     }
 
@@ -120,7 +157,9 @@ export class DesperateManager {
     if (maximumHP <= 0) {
       return {
         allowed: false,
-        reason: "Postać nie ma poprawnie ustawionych maksymalnych HP."
+        reason: t(
+          "validation.invalidMaximumHP"
+        )
       };
     }
 
@@ -130,17 +169,25 @@ export class DesperateManager {
     ) {
       return {
         allowed: false,
-        reason:
-          "Desperate Measures można użyć tylko przy połowie maksymalnych HP lub mniej."
+        reason: t(
+          "validation.hpThreshold"
+        )
       };
     }
 
     if (!this.canAddFailures(actor, measure.cost)) {
       return {
         allowed: false,
-        reason:
-          `Ta opcja kosztuje ${measure.cost} porażki death save, ` +
-          "a postać nie ma wystarczająco wolnych pól."
+        reason: t(
+          "validation.notEnoughFailureSlots",
+          {
+            cost: measure.cost,
+            failureLabel:
+              deathSaveFailureLabel(
+                measure.cost
+              )
+          }
+        )
       };
     }
     
@@ -177,8 +224,9 @@ export class DesperateManager {
 ) {
   return {
     allowed: false,
-    reason:
-      "Postać nie ma zużytego slotu zaklęcia poziomu 1–5."
+    reason: t(
+      "validation.noRecoverableSlot"
+    )
   };
 }
 
@@ -199,7 +247,7 @@ export class DesperateManager {
 
     if (!this.canAddFailures(actor, cost)) {
       ui.notifications.warn(
-        "Nie możesz zaznaczyć tylu porażek death save."
+        t("validation.cannotAddFailures")
       );
 
       return this.getFailures(actor);
@@ -326,7 +374,10 @@ export class DesperateManager {
     );
 
     ui.notifications.info(
-      `${actor.name} używa: ${measure.name}`
+      t("usage.notification", {
+        actor: actor.name,
+        measure: measure.name
+      })
     );
 
     return {
@@ -374,8 +425,11 @@ if (!showChat) return;
         </header>
 
         <p>
-          <strong>${actor.name}</strong>
-          wykorzystuje:
+          <strong>
+            ${t("usage.chatUses", {
+              actor: actor.name
+            })}
+          </strong>
         </p>
 
         <h3>${measure.name}</h3>
@@ -385,16 +439,15 @@ if (!showChat) return;
         <hr>
 
         <p>
-          Koszt:
+          ${t("common.cost")}:
           <strong>
             ${measure.cost}
-            ${measure.cost === 1 ? "porażka" : "porażki"}
-            death save
+            ${deathSaveFailureLabel(measure.cost)}
           </strong>
         </p>
 
         <p>
-          Aktualny stan:
+          ${t("common.currentState")}:
           <span class="desperate-measures-chat-skulls">
             ${skulls}
           </span>
