@@ -205,7 +205,7 @@ export class RollManager {
     );
 
     try {
-      const clonedTerms =
+            const clonedTerms =
         originalRoll.terms.map(
           (term) =>
             term.constructor.fromData(
@@ -213,19 +213,25 @@ export class RollManager {
             )
         );
 
-      clonedTerms.push(
+      const operatorTerm =
         new foundry.dice.terms.OperatorTerm({
           operator: "+"
-        })
-      );
+        });
 
-      clonedTerms.push(
+      const bonusTerm =
         new foundry.dice.terms.NumericTerm({
           number: 5,
           options: {
             flavor: "Desperate Measures"
           }
-        })
+        });
+
+      await operatorTerm.evaluate();
+      await bonusTerm.evaluate();
+
+      clonedTerms.push(
+        operatorTerm,
+        bonusTerm
       );
 
       const adjustedRoll =
@@ -235,10 +241,6 @@ export class RollManager {
             originalRoll.options ?? {}
           )
         );
-
-      await adjustedRoll.evaluate({
-        allowInteractive: false
-      });
 
       const updatedRolls =
         message.rolls.map(
