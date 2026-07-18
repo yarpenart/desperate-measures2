@@ -312,6 +312,13 @@ export class DesperateManager {
             measureId
           );
 
+              if (
+      measureId ===
+      MEASURE_IDS.MAXIMIZE_DAMAGE
+    ) {
+      await RollManager.markUsed(actor);
+    }
+
     await this.createUsageMessage(
       actor,
       measure,
