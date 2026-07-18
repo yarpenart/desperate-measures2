@@ -226,8 +226,7 @@ export class RollManager {
           }
         });
 
-      await operatorTerm.evaluate();
-      await bonusTerm.evaluate();
+            await bonusTerm.evaluate();
 
       clonedTerms.push(
         operatorTerm,
