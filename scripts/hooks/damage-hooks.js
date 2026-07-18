@@ -55,7 +55,7 @@ function getActiveMaximizeEffect(actor) {
 
       const expiresAt = Number(
         effect.expiresAt ??
-          Number(effect.createdAt ?? 0) + 120000
+          Number(effect.createdAt ?? 0) + 180000
       );
 
       return expiresAt >= now;
