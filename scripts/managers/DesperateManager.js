@@ -13,7 +13,6 @@ import { RollManager }
 
 export class DesperateManager {
 
-export class DesperateManager {
   static MEASURES = {
     dashDisengage: {
       id: MEASURE_IDS.DASH_DISENGAGE,
