@@ -9,6 +9,9 @@ import { DesperateManager }
 import { RollManager }
   from "../managers/RollManager.js";
 
+import { t }
+  from "../i18n.js";
+
 export function registerRestHooks() {
   Hooks.on(
     "dnd5e.restCompleted",
@@ -29,7 +32,9 @@ export function registerRestHooks() {
       await RollManager.clear(actor);
 
       ui.notifications.info(
-        `${actor.name}: Desperate Measures zostały zresetowane po długim odpoczynku.`
+        t("rest.reset", {
+          actor: actor.name
+        })
       );
     }
   );
