@@ -48,7 +48,7 @@ jobs:
           zip -r ../desperate-measures.zip .
           cd ..
 
-            - name: Create or update GitHub Release
+      - name: Create or update GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
