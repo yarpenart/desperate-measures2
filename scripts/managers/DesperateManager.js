@@ -152,6 +152,15 @@ export class DesperateManager {
         return rollValidation;
       }
     }
+
+        if (measureId === MEASURE_IDS.REROLL_ATTACK) {
+      const rollValidation =
+        RollManager.canRerollAttack(actor);
+
+      if (!rollValidation.allowed) {
+        return rollValidation;
+      }
+    }
     if (
   measureId ===
   MEASURE_IDS.RECOVER_SPELL_SLOT &&
