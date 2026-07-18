@@ -3,54 +3,73 @@ import { RollManager }
 
 export function registerRollHooks() {
   Hooks.on(
-    "dnd5e.rollAbilityTest",
-    async (actor, roll, abilityId) => {
-      await RollManager.storeRoll(
-        actor,
-        roll,
-        "abilityTest",
-        abilityId
-      );
-    }
+    "dnd5e.rollAbilityCheck",
+    (rolls, data) => captureRoll(
+      rolls,
+      data,
+      "abilityTest",
+      data?.ability
+    )
   );
 
   Hooks.on(
-    "dnd5e.rollAbilitySave",
-    async (actor, roll, abilityId) => {
-      await RollManager.storeRoll(
-        actor,
-        roll,
-        "abilitySave",
-        abilityId
-      );
-    }
+    "dnd5e.rollSavingThrow",
+    (rolls, data) => captureRoll(
+      rolls,
+      data,
+      "abilitySave",
+      data?.ability
+    )
   );
 
   Hooks.on(
     "dnd5e.rollSkill",
-    async (actor, roll, skillId) => {
-      await RollManager.storeRoll(
-        actor,
-        roll,
-        "skill",
-        skillId
-      );
-    }
+    (rolls, data) => captureRoll(
+      rolls,
+      data,
+      "skill",
+      data?.skill
+    )
   );
 
   Hooks.on(
     "dnd5e.rollToolCheck",
-    async (item, roll) => {
-      const actor = item?.actor;
+    (rolls, data) => captureRoll(
+      rolls,
+      data,
+      "toolCheck",
+      data?.tool
+    )
+  );
+}
 
-      if (!actor) return;
+async function captureRoll(
+  rolls,
+  data,
+  type,
+  identifier
+) {
+  const actor = data?.subject;
 
-      await RollManager.storeRoll(
-        actor,
-        roll,
-        "toolCheck",
-        item.id
-      );
-    }
+  const roll = Array.isArray(rolls)
+    ? rolls[0]
+    : rolls;
+
+  if (!actor || typeof actor.setFlag !== "function") {
+    console.warn(
+      "Desperate Measures | Nie znaleziono aktora dla rzutu d20.",
+      { rolls, data, type, identifier }
+    );
+
+    return null;
+  }
+
+  if (!roll) return null;
+
+  return RollManager.storeRoll(
+    actor,
+    roll,
+    type,
+    identifier
   );
 }
