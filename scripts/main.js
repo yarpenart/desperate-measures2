@@ -1,127 +1,98 @@
-import { BloodiedManager } 
-from "./managers/BloodiedManager.js";
+import { BloodiedManager }
+  from "./managers/BloodiedManager.js";
 
 import { DesperateManager }
-from "./managers/DesperateManager.js";
+  from "./managers/DesperateManager.js";
 
 import { DesperateButton }
-from "./ui/DesperateButton.js";
+  from "./ui/DesperateButton.js";
+
+const MODULE_ID = "desperate-measures";
 
 console.log(
-    "Desperate Measures | Module Loaded"
+  "Desperate Measures | Module file loaded"
 );
-
-
 
 Hooks.once("init", () => {
+  console.log(
+    "Desperate Measures | Initializing"
+  );
 
-    console.log(
-        "Desperate Measures | Initializing"
-    );
+  game.desperateMeasures = {
+    isBloodied: (actor) =>
+      BloodiedManager.isBloodied(actor),
 
+    getFailures: (actor) =>
+      DesperateManager.getFailures(actor),
+
+    addFailures: (actor, amount) =>
+      DesperateManager.addFailures(actor, amount),
+
+    resetFailures: (actor) =>
+      DesperateManager.reset(actor)
+  };
 });
 
+Hooks.once("ready", async () => {
+  console.log(
+    "Desperate Measures | Ready"
+  );
 
+  for (const actor of game.actors) {
+    if (actor.type !== "character") continue;
+
+    await BloodiedManager.update(actor);
+  }
+});
 
 Hooks.on(
-    "updateActor",
-    async (actor, changes) => {
+  "updateActor",
+  async (actor, changes) => {
+    const hpChanged =
+      foundry.utils.hasProperty(
+        changes,
+        "system.attributes.hp.value"
+      ) ||
+      foundry.utils.hasProperty(
+        changes,
+        "system.attributes.hp.max"
+      );
 
-
-        if (
-            changes.system?.attributes?.hp
-        ) {
-
-            await BloodiedManager.update(actor);
-
-            console.log(
-                "Desperate Measures | Bloodied Updated",
-                actor.name
-            );
-
-        }
-
+    if (hpChanged) {
+      await BloodiedManager.update(actor);
     }
 
-);
-Hooks.once(
-"ready",
-()=>{
+    const deathFailuresChanged =
+      foundry.utils.hasProperty(
+        changes,
+        "system.attributes.death.failure"
+      );
 
-
-game.commands.register(
-"desperate-test",
-{
-
-name:"Add Desperate Failure",
-
-callback: async ()=>{
-
-
-const actor =
-game.user.character;
-
-
-if(!actor)
-{
-ui.notifications.warn(
-"No character selected"
+    if (hpChanged || deathFailuresChanged) {
+      for (const sheet of Object.values(actor.apps ?? {})) {
+        sheet.render(false);
+      }
+    }
+  }
 );
 
-return;
+function renderDesperatePanel(app, html) {
+  try {
+    DesperateButton.createButton(app, html);
+  } catch (error) {
+    console.error(
+      `${MODULE_ID} | Nie udało się dodać panelu do karty aktora.`,
+      error
+    );
+  }
 }
 
-
-const value =
-await DesperateManager.addFailures(
-actor,
-1
+Hooks.on(
+  "renderActorSheetV2",
+  renderDesperatePanel
 );
 
-
-ui.notifications.info(
-`Desperate Failures: ${value}/3`
+Hooks.on(
+  "renderActorSheet",
+  renderDesperatePanel
 );
-
-
-}
-
-
-});
-
-
-});
-
-Hooks.on(
-"renderActorSheetV2",
-(app, html)=>{
-
-    console.log(
-        "Desperate Measures | Actor Sheet Rendered",
-        app.actor.name
-    );
-
-
-    DesperateButton.createButton(
-        app,
-        html
-    );
-
-});
-
-Hooks.on(
-"renderActorSheet",
-(app, html)=>{
-
-    console.log(
-        "Desperate Measures | Legacy Actor Sheet Rendered",
-        app.actor.name
-    );
-
-
-    DesperateButton.createButton(
-        app,
-        html
-    );
-
-});

@@ -1,32 +1,29 @@
 export class BloodiedManager {
+  static isBloodied(actor) {
+    if (!actor) return false;
 
-    static isBloodied(actor) {
+    const hp = actor.system?.attributes?.hp;
+    if (!hp) return false;
 
-        if (!actor) return false;
+    const current = Number(hp.value ?? 0);
+    const maximum = Number(hp.max ?? 0);
 
-        const hp = actor.system.attributes.hp;
+    if (maximum <= 0) return false;
 
-        if (!hp.value || !hp.max) {
-            return false;
-        }
+    return current > 0 && current <= maximum / 2;
+  }
 
-        return hp.value <= (hp.max / 2);
-    }
+  static async update(actor) {
+    if (!actor) return false;
 
+    const bloodied = this.isBloodied(actor);
 
-    static update(actor) {
+    await actor.setFlag(
+      "desperate-measures",
+      "bloodied",
+      bloodied
+    );
 
-        const bloodied = this.isBloodied(actor);
-
-
-        actor.setFlag(
-            "desperate-measures",
-            "bloodied",
-            bloodied
-        );
-
-
-        return bloodied;
-    }
-
+    return bloodied;
+  }
 }
