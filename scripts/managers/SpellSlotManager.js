@@ -3,6 +3,9 @@ import {
   SETTINGS
 } from "../constants/constants.js";
 
+import { t }
+  from "../i18n.js";
+
 export class SpellSlotManager {
   static MIN_LEVEL = 1;
   static MAX_LEVEL = 5;
@@ -72,7 +75,7 @@ export class SpellSlotManager {
 
     if (!slot) {
       ui.notifications.warn(
-        "Nie znaleziono wybranego poziomu slotu."
+        t("slots.levelNotFound")
       );
 
       return null;
@@ -80,7 +83,9 @@ export class SpellSlotManager {
 
     if (slot.maximum <= 0) {
       ui.notifications.warn(
-        `Postać nie posiada slotów ${slot.level}. poziomu.`
+        t("slots.characterHasNone", {
+          level: slot.level
+        })
       );
 
       return null;
@@ -88,7 +93,9 @@ export class SpellSlotManager {
 
     if (!slot.canRecover) {
       ui.notifications.warn(
-        `Sloty ${slot.level}. poziomu są już pełne.`
+        t("slots.alreadyFull", {
+          level: slot.level
+        })
       );
 
       return null;
@@ -151,13 +158,16 @@ if (!showChat) return;
           </header>
 
           <p>
-            <strong>${actor.name}</strong>
-            odzyskuje slot zaklęcia
-            <strong>${recovery.level}. poziomu</strong>.
+            <strong>
+              ${t("slots.chatRecovered", {
+                actor: actor.name,
+                level: recovery.level
+              })}
+            </strong>
           </p>
 
           <p>
-            Sloty:
+            ${t("slots.chatSlots")}:
             <strong>
               ${recovery.previousValue}
               →
