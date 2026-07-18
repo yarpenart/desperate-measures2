@@ -8,7 +8,8 @@ export class RollManager {
     "abilityTest",
     "abilitySave",
     "skill",
-    "toolCheck"
+    "toolCheck",
+    "attack"
   ];
 
   static getLastRoll(actor) {
@@ -125,7 +126,15 @@ export class RollManager {
       return {
         allowed: false,
         reason:
-          "Postać nie wykonała jeszcze obsługiwanego testu d20."
+          "PostaÄ nie wykonaĹa jeszcze obsĹugiwanego testu d20."
+      };
+    }
+
+    if (lastRoll.type === "attack") {
+      return {
+        allowed: false,
+        reason:
+          "Opcja +5 nie dziaĹa na rzuty ataku. UĹźyj opcji przerzutu ataku."
       };
     }
 
@@ -133,7 +142,7 @@ export class RollManager {
       return {
         allowed: false,
         reason:
-          "Do tego rzutu wykorzystano już Desperate Measure."
+          "Do tego rzutu wykorzystano juĹź Desperate Measure."
       };
     }
 
@@ -149,7 +158,7 @@ export class RollManager {
       return {
         allowed: false,
         reason:
-          "Nie znaleziono wiadomości czatu powiązanej z ostatnim rzutem."
+          "Nie znaleziono wiadomoĹci czatu powiÄzanej z ostatnim rzutem."
       };
     }
 
@@ -165,7 +174,72 @@ export class RollManager {
       return {
         allowed: false,
         reason:
-          "Wiadomość ostatniego rzutu nie jest już dostępna."
+          "WiadomoĹÄ ostatniego rzutu nie jest juĹź dostÄpna."
+      };
+    }
+
+    return {
+      allowed: true,
+      reason: ""
+    };
+  }
+
+  static canRerollAttack(actor) {
+    const lastRoll = this.getLastRoll(actor);
+
+    if (!lastRoll) {
+      return {
+        allowed: false,
+        reason:
+          "PostaÄ nie wykonaĹa jeszcze rzutu ataku."
+      };
+    }
+
+    if (lastRoll.type !== "attack") {
+      return {
+        allowed: false,
+        reason:
+          "Ostatni przechwycony rzut nie jest rzutem ataku."
+      };
+    }
+
+    if (lastRoll.used) {
+      return {
+        allowed: false,
+        reason:
+          "Do tego rzutu wykorzystano juĹź Desperate Measure."
+      };
+    }
+
+    if (!this.isRecent(lastRoll)) {
+      return {
+        allowed: false,
+        reason:
+          "Ostatni atak jest zbyt stary. Wykonaj nowy rzut ataku."
+      };
+    }
+
+    if (!lastRoll.messageId) {
+      return {
+        allowed: false,
+        reason:
+          "Nie znaleziono wiadomoĹci czatu powiÄzanej z ostatnim atakiem."
+      };
+    }
+
+    const message = game.messages?.get(
+      lastRoll.messageId
+    );
+
+    const rollIndex = Number(
+      lastRoll.rollIndex ?? 0
+    );
+
+    if (!message?.rolls?.[rollIndex]) {
+      return {
+        allowed: false,
+        reason:
+          "WiadomoĹÄ ostatniego ataku nie jest juĹź dostÄpna."
       };
     }
 
@@ -205,7 +279,7 @@ export class RollManager {
     );
 
     try {
-            const clonedTerms =
+      const clonedTerms =
         originalRoll.terms.map(
           (term) =>
             term.constructor.fromData(
@@ -226,7 +300,7 @@ export class RollManager {
           }
         });
 
-            await bonusTerm.evaluate();
+      await bonusTerm.evaluate();
 
       clonedTerms.push(
         operatorTerm,
@@ -273,12 +347,89 @@ export class RollManager {
       };
     } catch (error) {
       console.error(
-        "Desperate Measures | Nie udało się dodać +5 do rzutu.",
+        "Desperate Measures | Nie udaĹo siÄ dodaÄ +5 do rzutu.",
         error
       );
 
       ui.notifications.error(
-        "Nie udało się dodać +5 do ostatniego rzutu. Sprawdź konsolę."
+        "Nie udaĹo siÄ dodaÄ +5 do ostatniego rzutu. SprawdĹş konsolÄ."
+      );
+
+      return null;
+    }
+  }
+
+  static async applyRerollAttack(actor) {
+    const validation =
+      this.canRerollAttack(actor);
+
+    if (!validation.allowed) {
+      ui.notifications.warn(
+        validation.reason
+      );
+
+      return null;
+    }
+
+    const lastRoll = this.getLastRoll(actor);
+
+    const message = game.messages.get(
+      lastRoll.messageId
+    );
+
+    const rollIndex = Number(
+      lastRoll.rollIndex ?? 0
+    );
+
+    const originalRoll =
+      message.rolls[rollIndex];
+
+    const originalTotal = Number(
+      originalRoll.total ?? 0
+    );
+
+    try {
+      const rerolledRoll =
+        await originalRoll.reroll();
+
+      const updatedRolls =
+        message.rolls.map(
+          (currentRoll, index) =>
+            index === rollIndex
+              ? rerolledRoll.toJSON()
+              : currentRoll.toJSON()
+        );
+
+      await message.update({
+        rolls: updatedRolls,
+
+        [`flags.${MODULE_ID}.rerollAttack`]: {
+          actorId: actor.id,
+          originalTotal,
+          rerolledTotal:
+            rerolledRoll.total,
+          appliedAt: Date.now(),
+          appliedBy: game.user.id
+        }
+      });
+
+      await this.markUsed(actor);
+
+      return {
+        message,
+        originalTotal,
+        rerolledTotal: Number(
+          rerolledRoll.total
+        )
+      };
+    } catch (error) {
+      console.error(
+        "Desperate Measures | Nie udaĹo siÄ przerzuciÄ ataku.",
+        error
+      );
+
+      ui.notifications.error(
+        "Nie udaĹo siÄ przerzuciÄ ostatniego ataku. SprawdĹş konsolÄ."
       );
 
       return null;
