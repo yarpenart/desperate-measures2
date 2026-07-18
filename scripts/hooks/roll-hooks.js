@@ -4,6 +4,9 @@ import { RollManager }
 import { MODULE_ID }
   from "../constants/constants.js";
 
+import { t }
+  from "../i18n.js";
+
 export function registerRollHooks() {
   Hooks.on(
     "dnd5e.rollAbilityCheck",
@@ -154,7 +157,7 @@ function styleRerolledMessage(message, html) {
 
   const label = document.createElement("span");
   label.textContent =
-    "Ten rzut zostal zastapiony przez Desperate Measures.";
+    t("roll.replacedStatus");
 
   status.append(icon, label);
   content.prepend(status);
