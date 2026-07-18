@@ -7,6 +7,9 @@ import { DesperateManager }
 import { DesperateDialog }
   from "./DesperateDialog.js";
 
+import { t }
+  from "../i18n.js";
+
 export class DesperateButton {
   static createButton(app, html) {
     const actor =
@@ -58,14 +61,18 @@ export class DesperateButton {
 
       <div class="desperate-measures-status">
         <span>
-          Status:
+          ${t("button.status")}:
           <strong class="${bloodied ? "is-bloodied" : ""}">
-            ${bloodied ? "BLOODIED" : "Niedostępne"}
+            ${
+              bloodied
+                ? t("button.bloodied")
+                : t("button.unavailable")
+            }
           </strong>
         </span>
 
         <span>
-          HP:
+          ${t("common.hp")}:
           ${actor.system.attributes.hp.value}
           /
           ${actor.system.attributes.hp.max}
@@ -73,11 +80,13 @@ export class DesperateButton {
       </div>
 
       <div class="desperate-measures-failures">
-        <span>Death Save Failures:</span>
+        <span>${t("button.deathSaveFailures")}:</span>
 
         <span
           class="desperate-measures-skulls"
-          aria-label="${failures} z 3 niezdanych death save’ów"
+          aria-label="${t("button.failuresAria", {
+            count: failures
+          })}"
         >
           ${this.createFailureDisplay(failures)}
         </span>
@@ -89,25 +98,25 @@ export class DesperateButton {
         ${bloodied && failures < 3 ? "" : "disabled"}
       >
         <i class="fa-solid fa-fire"></i>
-        Użyj Desperate Measure
+        ${t("button.use")}
       </button>
 
       <p class="desperate-measures-hint">
         ${
           bloodied
             ? failures < 3
-              ? "Możesz wykorzystać Desperate Measure."
-              : "Masz już 3 niezdane death save’y."
-            : "Wymaga połowy maksymalnych HP lub mniej."
+              ? t("button.hint.available")
+              : t("button.hint.maxFailures")
+            : t("button.hint.hp")
         }
       </p>
     `;
 
     panel
-  .querySelector(".desperate-measures-open")
-  ?.addEventListener("click", () => {
-    DesperateDialog.open(actor);
-  });
+      .querySelector(".desperate-measures-open")
+      ?.addEventListener("click", () => {
+        DesperateDialog.open(actor);
+      });
 
     const insertionPoint =
       root.querySelector("form") ??
