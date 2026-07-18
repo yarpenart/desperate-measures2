@@ -26,6 +26,7 @@ export const FLAGS = {
   PENDING_EFFECTS: "pendingEffects",
   LAST_D20_ROLL: "lastD20Roll"
 };
+};
 
   PENDING_EFFECTS:
     "pendingEffects"
