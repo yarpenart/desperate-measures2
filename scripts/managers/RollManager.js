@@ -3,6 +3,9 @@ import {
   FLAGS
 } from "../constants/constants.js";
 
+import { t }
+  from "../i18n.js";
+
 export class RollManager {
   static SUPPORTED_TYPES = [
     "abilityTest",
@@ -125,8 +128,7 @@ export class RollManager {
     if (!lastRoll) {
       return {
         allowed: false,
-        reason:
-          "Postac nie wykonala jeszcze obslugiwanego testu d20."
+        reason: t("roll.noSupportedRoll")
       };
     }
 
@@ -134,24 +136,21 @@ export class RollManager {
     if (lastRoll.used) {
       return {
         allowed: false,
-        reason:
-          "Do tego rzutu wykorzystano juz Desperate Measure."
+        reason: t("roll.alreadyUsed")
       };
     }
 
     if (!this.isRecent(lastRoll)) {
       return {
         allowed: false,
-        reason:
-          "Ostatni test jest zbyt stary. Wykonaj nowy test d20."
+        reason: t("roll.tooOld")
       };
     }
 
     if (!lastRoll.messageId) {
       return {
         allowed: false,
-        reason:
-          "Nie znaleziono wiadomosci czatu powiazanej z ostatnim rzutem."
+        reason: t("roll.noMessage")
       };
     }
 
@@ -166,8 +165,7 @@ export class RollManager {
     if (!message?.rolls?.[rollIndex]) {
       return {
         allowed: false,
-        reason:
-          "Wiadomosc ostatniego rzutu nie jest juz dostepna."
+        reason: t("roll.messageUnavailable")
       };
     }
 
@@ -183,40 +181,35 @@ export class RollManager {
     if (!lastRoll) {
       return {
         allowed: false,
-        reason:
-          "Postac nie wykonala jeszcze rzutu ataku."
+        reason: t("roll.noAttack")
       };
     }
 
     if (lastRoll.type !== "attack") {
       return {
         allowed: false,
-        reason:
-          "Ostatni przechwycony rzut nie jest rzutem ataku."
+        reason: t("roll.notAttack")
       };
     }
 
     if (lastRoll.used) {
       return {
         allowed: false,
-        reason:
-          "Do tego rzutu wykorzystano juz Desperate Measure."
+        reason: t("roll.alreadyUsed")
       };
     }
 
     if (!this.isRecent(lastRoll)) {
       return {
         allowed: false,
-        reason:
-          "Ostatni atak jest zbyt stary. Wykonaj nowy rzut ataku."
+        reason: t("roll.attackTooOld")
       };
     }
 
     if (!lastRoll.messageId) {
       return {
         allowed: false,
-        reason:
-          "Nie znaleziono wiadomosci czatu powiazanej z ostatnim atakiem."
+        reason: t("roll.noAttackMessage")
       };
     }
 
@@ -231,8 +224,9 @@ export class RollManager {
     if (!message?.rolls?.[rollIndex]) {
       return {
         allowed: false,
-        reason:
-          "Wiadomosc ostatniego ataku nie jest juz dostepna."
+        reason: t(
+          "roll.attackMessageUnavailable"
+        )
       };
     }
 
@@ -345,7 +339,7 @@ export class RollManager {
       );
 
       ui.notifications.error(
-        "Nie udalo sie dodac +5 do ostatniego rzutu. Sprawdz konsole."
+        t("roll.plusFiveError")
       );
 
       return null;
@@ -398,7 +392,7 @@ export class RollManager {
             <div class="desperate-measures-reroll-flavor">
               <strong>
                 <i class="fa-solid fa-rotate"></i>
-                Desperate Measures - przerzut ataku
+                ${t("roll.rerollFlavor")}
               </strong>
               ${message.flavor
                 ? `<div>${message.flavor}</div>`
@@ -463,7 +457,7 @@ export class RollManager {
       );
 
       ui.notifications.error(
-        "Nie udalo sie przerzucic ostatniego ataku. Sprawdz konsole."
+        t("roll.rerollError")
       );
 
       return null;
