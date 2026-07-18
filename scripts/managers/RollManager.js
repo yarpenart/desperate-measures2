@@ -130,13 +130,6 @@ export class RollManager {
       };
     }
 
-    if (lastRoll.type === "attack") {
-      return {
-        allowed: false,
-        reason:
-          "Opcja +5 nie dziala na rzuty ataku. Uzyj opcji przerzutu ataku."
-      };
-    }
 
     if (lastRoll.used) {
       return {
