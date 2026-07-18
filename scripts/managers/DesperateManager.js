@@ -262,6 +262,13 @@ export class DesperateManager {
 
       if (!appliedEffect) return null;
     }
+    
+    if (measureId === MEASURE_IDS.REROLL_ATTACK) {
+      appliedEffect =
+        await RollManager.applyRerollAttack(actor);
+
+      if (!appliedEffect) return null;
+    }
 
     const failures = await this.addFailures(
       actor,
