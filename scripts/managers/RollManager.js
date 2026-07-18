@@ -32,12 +32,28 @@ export class RollManager {
       return null;
     }
 
+    const message = roll.parent?.id
+      ? roll.parent
+      : null;
+
+    const matchedIndex = message?.rolls?.findIndex(
+      (candidate) =>
+        candidate.formula === roll.formula &&
+        candidate.total === roll.total
+    );
+
     const data = {
       id: foundry.utils.randomID(),
       type,
       identifier,
       formula: roll.formula ?? "",
       total: Number(roll.total ?? 0),
+      messageId: message?.id ?? null,
+      rollIndex:
+        Number.isInteger(matchedIndex) &&
+        matchedIndex >= 0
+          ? matchedIndex
+          : 0,
       createdAt: Date.now(),
       createdBy: game.user.id,
       used: false
@@ -90,11 +106,15 @@ export class RollManager {
     );
   }
 
-  static isRecent(rollData, maximumAge = 120000) {
+  static isRecent(
+    rollData,
+    maximumAge = 120000
+  ) {
     if (!rollData?.createdAt) return false;
 
     return (
-      Date.now() - rollData.createdAt <= maximumAge
+      Date.now() - rollData.createdAt <=
+      maximumAge
     );
   }
 
@@ -125,9 +145,142 @@ export class RollManager {
       };
     }
 
+    if (!lastRoll.messageId) {
+      return {
+        allowed: false,
+        reason:
+          "Nie znaleziono wiadomości czatu powiązanej z ostatnim rzutem."
+      };
+    }
+
+    const message = game.messages?.get(
+      lastRoll.messageId
+    );
+
+    const rollIndex = Number(
+      lastRoll.rollIndex ?? 0
+    );
+
+    if (!message?.rolls?.[rollIndex]) {
+      return {
+        allowed: false,
+        reason:
+          "Wiadomość ostatniego rzutu nie jest już dostępna."
+      };
+    }
+
     return {
       allowed: true,
       reason: ""
     };
+  }
+
+  static async applyPlusFive(actor) {
+    const validation =
+      this.canApplyPlusFive(actor);
+
+    if (!validation.allowed) {
+      ui.notifications.warn(
+        validation.reason
+      );
+
+      return null;
+    }
+
+    const lastRoll = this.getLastRoll(actor);
+
+    const message = game.messages.get(
+      lastRoll.messageId
+    );
+
+    const rollIndex = Number(
+      lastRoll.rollIndex ?? 0
+    );
+
+    const originalRoll =
+      message.rolls[rollIndex];
+
+    const originalTotal = Number(
+      originalRoll.total ?? 0
+    );
+
+    try {
+      const clonedTerms =
+        originalRoll.terms.map(
+          (term) =>
+            term.constructor.fromData(
+              term.toJSON()
+            )
+        );
+
+      clonedTerms.push(
+        new foundry.dice.terms.OperatorTerm({
+          operator: "+"
+        })
+      );
+
+      clonedTerms.push(
+        new foundry.dice.terms.NumericTerm({
+          number: 5,
+          options: {
+            flavor: "Desperate Measures"
+          }
+        })
+      );
+
+      const adjustedRoll =
+        originalRoll.constructor.fromTerms(
+          clonedTerms,
+          foundry.utils.deepClone(
+            originalRoll.options ?? {}
+          )
+        );
+
+      await adjustedRoll.evaluate({
+        allowInteractive: false
+      });
+
+      const updatedRolls =
+        message.rolls.map(
+          (currentRoll, index) =>
+            index === rollIndex
+              ? adjustedRoll.toJSON()
+              : currentRoll.toJSON()
+        );
+
+      await message.update({
+        rolls: updatedRolls,
+
+        [`flags.${MODULE_ID}.plusFive`]: {
+          actorId: actor.id,
+          originalTotal,
+          adjustedTotal:
+            adjustedRoll.total,
+          appliedAt: Date.now(),
+          appliedBy: game.user.id
+        }
+      });
+
+      await this.markUsed(actor);
+
+      return {
+        message,
+        originalTotal,
+        adjustedTotal: Number(
+          adjustedRoll.total
+        )
+      };
+    } catch (error) {
+      console.error(
+        "Desperate Measures | Nie udało się dodać +5 do rzutu.",
+        error
+      );
+
+      ui.notifications.error(
+        "Nie udało się dodać +5 do ostatniego rzutu. Sprawdź konsolę."
+      );
+
+      return null;
+    }
   }
 }
