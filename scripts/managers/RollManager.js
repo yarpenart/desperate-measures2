@@ -126,7 +126,7 @@ export class RollManager {
       return {
         allowed: false,
         reason:
-          "PostaÄ nie wykonaĹa jeszcze obsĹugiwanego testu d20."
+          "Postac nie wykonala jeszcze obslugiwanego testu d20."
       };
     }
 
@@ -134,7 +134,7 @@ export class RollManager {
       return {
         allowed: false,
         reason:
-          "Opcja +5 nie dziaĹa na rzuty ataku. UĹźyj opcji przerzutu ataku."
+          "Opcja +5 nie dziala na rzuty ataku. Uzyj opcji przerzutu ataku."
       };
     }
 
@@ -142,7 +142,7 @@ export class RollManager {
       return {
         allowed: false,
         reason:
-          "Do tego rzutu wykorzystano juĹź Desperate Measure."
+          "Do tego rzutu wykorzystano juz Desperate Measure."
       };
     }
 
@@ -158,7 +158,7 @@ export class RollManager {
       return {
         allowed: false,
         reason:
-          "Nie znaleziono wiadomoĹci czatu powiÄzanej z ostatnim rzutem."
+          "Nie znaleziono wiadomosci czatu powiazanej z ostatnim rzutem."
       };
     }
 
@@ -174,7 +174,7 @@ export class RollManager {
       return {
         allowed: false,
         reason:
-          "WiadomoĹÄ ostatniego rzutu nie jest juĹź dostÄpna."
+          "Wiadomosc ostatniego rzutu nie jest juz dostepna."
       };
     }
 
@@ -191,7 +191,7 @@ export class RollManager {
       return {
         allowed: false,
         reason:
-          "PostaÄ nie wykonaĹa jeszcze rzutu ataku."
+          "Postac nie wykonala jeszcze rzutu ataku."
       };
     }
 
@@ -207,7 +207,7 @@ export class RollManager {
       return {
         allowed: false,
         reason:
-          "Do tego rzutu wykorzystano juĹź Desperate Measure."
+          "Do tego rzutu wykorzystano juz Desperate Measure."
       };
     }
 
@@ -223,7 +223,7 @@ export class RollManager {
       return {
         allowed: false,
         reason:
-          "Nie znaleziono wiadomoĹci czatu powiÄzanej z ostatnim atakiem."
+          "Nie znaleziono wiadomosci czatu powiazanej z ostatnim atakiem."
       };
     }
 
@@ -239,7 +239,7 @@ export class RollManager {
       return {
         allowed: false,
         reason:
-          "WiadomoĹÄ ostatniego ataku nie jest juĹź dostÄpna."
+          "Wiadomosc ostatniego ataku nie jest juz dostepna."
       };
     }
 
@@ -347,12 +347,12 @@ export class RollManager {
       };
     } catch (error) {
       console.error(
-        "Desperate Measures | Nie udaĹo siÄ dodaÄ +5 do rzutu.",
+        "Desperate Measures | Nie udalo sie dodac +5 do rzutu.",
         error
       );
 
       ui.notifications.error(
-        "Nie udaĹo siÄ dodaÄ +5 do ostatniego rzutu. SprawdĹş konsolÄ."
+        "Nie udalo sie dodac +5 do ostatniego rzutu. Sprawdz konsole."
       );
 
       return null;
@@ -424,12 +424,12 @@ export class RollManager {
       };
     } catch (error) {
       console.error(
-        "Desperate Measures | Nie udaĹo siÄ przerzuciÄ ataku.",
+        "Desperate Measures | Nie udalo sie przerzucic ataku.",
         error
       );
 
       ui.notifications.error(
-        "Nie udaĹo siÄ przerzuciÄ ostatniego ataku. SprawdĹş konsolÄ."
+        "Nie udalo sie przerzucic ostatniego ataku. Sprawdz konsole."
       );
 
       return null;
