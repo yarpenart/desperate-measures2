@@ -4,11 +4,14 @@ import { SpellSlotManager }
 import { DesperateManager }
   from "../managers/DesperateManager.js";
 
+import { t }
+  from "../i18n.js";
+
 export class SpellSlotDialog {
   static async open(actor, pendingEffect) {
     if (!actor || !pendingEffect) {
       ui.notifications.warn(
-        "Nie znaleziono postaci lub oczekującego efektu."
+        t("slots.missingActorOrEffect")
       );
 
       return;
@@ -20,7 +23,7 @@ export class SpellSlotDialog {
     const content = `
       <div class="desperate-slot-dialog">
         <p>
-          Wybierz poziom slotu zaklęcia, który chcesz odzyskać.
+          ${t("slots.chooseLevel")}
         </p>
 
         <div class="desperate-slot-list">
@@ -32,11 +35,13 @@ export class SpellSlotDialog {
               let reason = "";
 
               if (slot.maximum <= 0) {
-                reason =
-                  "Postać nie posiada slotów tego poziomu.";
+                reason = t(
+                  "slots.noSlotsAtLevel"
+                );
               } else if (!slot.canRecover) {
-                reason =
-                  "Sloty tego poziomu są już pełne.";
+                reason = t(
+                  "slots.fullAtLevel"
+                );
               }
 
               return `
@@ -48,7 +53,9 @@ export class SpellSlotDialog {
                   title="${reason}"
                 >
                   <span class="desperate-slot-level">
-                    Poziom ${slot.level}
+                    ${t("slots.level", {
+                      level: slot.level
+                    })}
                   </span>
 
                   <span class="desperate-slot-values">
@@ -58,7 +65,9 @@ export class SpellSlotDialog {
                   <small>
                     ${
                       slot.canRecover
-                        ? `Brakuje: ${slot.missing}`
+                        ? t("slots.missing", {
+                            count: slot.missing
+                          })
                         : reason
                     }
                   </small>
@@ -71,8 +80,9 @@ export class SpellSlotDialog {
     `;
 
     const dialog = new Dialog({
-      title:
-        `Odzyskaj slot zaklęcia — ${actor.name}`,
+      title: t("slots.recoverTitle", {
+        actor: actor.name
+      }),
 
       content,
 
@@ -80,7 +90,7 @@ export class SpellSlotDialog {
         close: {
           icon:
             '<i class="fa-solid fa-xmark"></i>',
-          label: "Anuluj"
+          label: t("slots.cancel")
         }
       },
 
@@ -148,7 +158,10 @@ export class SpellSlotDialog {
           );
 
           ui.notifications.info(
-            `${actor.name} odzyskuje slot ${level}. poziomu.`
+            t("slots.recovered", {
+              actor: actor.name,
+              level
+            })
           );
 
           await dialog.close();
