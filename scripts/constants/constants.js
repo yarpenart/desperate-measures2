@@ -22,8 +22,10 @@ export const SETTINGS = {
 };
 
 export const FLAGS = {
-  BLOODIED:
-    "bloodied",
+  BLOODIED: "bloodied",
+  PENDING_EFFECTS: "pendingEffects",
+  LAST_D20_ROLL: "lastD20Roll"
+};
 
   PENDING_EFFECTS:
     "pendingEffects"
