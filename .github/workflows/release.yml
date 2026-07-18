@@ -71,20 +71,24 @@ jobs:
           zip -r ../desperate-measures.zip .
           cd ..
 
-- name: Create or update GitHub Release
-  env:
-    GH_TOKEN: ${{ github.token }}
-  shell: bash
-  run: |
-    if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
-      echo "Release ${GITHUB_REF_NAME} already exists. Deleting and recreating."
-      gh release delete "${GITHUB_REF_NAME}" --yes
-    fi
-    
-    echo "Creating release ${GITHUB_REF_NAME}."
-    
-    gh release create "${GITHUB_REF_NAME}" \
-      desperate-measures.zip \
-      module.json \
-      --title "Desperate Measures ${GITHUB_REF_NAME}" \
-      --generate-notes
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
+            echo "Release ${GITHUB_REF_NAME} already exists."
+
+            gh release upload "${GITHUB_REF_NAME}" \
+              desperate-measures.zip \
+              module.json \
+              --clobber
+          else
+            echo "Creating release ${GITHUB_REF_NAME}."
+
+            gh release create "${GITHUB_REF_NAME}" \
+              desperate-measures.zip \
+              module.json \
+              --title "Desperate Measures ${GITHUB_REF_NAME}" \
+              --generate-notes
+          fi
