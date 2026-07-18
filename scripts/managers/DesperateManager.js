@@ -169,7 +169,7 @@ export class DesperateManager {
         return rollValidation;
       }
     }
-    
+
     if (
   measureId ===
   MEASURE_IDS.RECOVER_SPELL_SLOT &&
@@ -215,14 +215,29 @@ export class DesperateManager {
     return newValue;
   }
 
-  static async addPendingEffect(actor, measureId) {
+    static async addPendingEffect(actor, measureId) {
     const current = this.getPendingEffects(actor);
+    const createdAt = Date.now();
+
+    const sourceRoll =
+      measureId === MEASURE_IDS.MAXIMIZE_DAMAGE
+        ? RollManager.getLastRoll(actor)
+        : null;
 
     const effect = {
       id: foundry.utils.randomID(),
       measureId,
-      createdAt: Date.now(),
-      createdBy: game.user.id
+      createdAt,
+      createdBy: game.user.id,
+
+      ...(sourceRoll
+        ? {
+            sourceRollId: sourceRoll.id,
+            sourceIdentifier:
+              sourceRoll.identifier ?? null,
+            expiresAt: createdAt + 120000
+          }
+        : {})
     };
 
     await actor.setFlag(
