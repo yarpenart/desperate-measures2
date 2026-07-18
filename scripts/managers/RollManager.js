@@ -359,7 +359,7 @@ export class RollManager {
     }
   }
 
-  static async applyRerollAttack(actor) {
+    static async applyRerollAttack(actor) {
     const validation =
       this.canRerollAttack(actor);
 
@@ -370,6 +370,112 @@ export class RollManager {
 
       return null;
     }
+
+    const lastRoll = this.getLastRoll(actor);
+
+    const message = game.messages.get(
+      lastRoll.messageId
+    );
+
+    const rollIndex = Number(
+      lastRoll.rollIndex ?? 0
+    );
+
+    const originalRoll =
+      message.rolls[rollIndex];
+
+    const originalTotal = Number(
+      originalRoll.total ?? 0
+    );
+
+    try {
+      const rerolledRoll =
+        await originalRoll.reroll();
+
+      const rerollMessage =
+        await rerolledRoll.toMessage({
+          user: game.user.id,
+
+          speaker:
+            foundry.utils.deepClone(
+              message.speaker ?? {}
+            ),
+
+          flavor: `
+            <div class="desperate-measures-reroll-flavor">
+              <strong>
+                <i class="fa-solid fa-rotate"></i>
+                Desperate Measures - przerzut ataku
+              </strong>
+              ${message.flavor
+                ? `<div>${message.flavor}</div>`
+                : ""}
+            </div>
+          `,
+
+          whisper: Array.from(
+            message.whisper ?? []
+          ),
+
+          blind: Boolean(message.blind),
+
+          flags: {
+            dnd5e:
+              foundry.utils.deepClone(
+                message.flags?.dnd5e ?? {}
+              ),
+
+            [MODULE_ID]: {
+              rerollAttack: {
+                isReroll: true,
+                originalMessageId: message.id,
+                actorId: actor.id,
+                originalTotal,
+                rerolledTotal:
+                  rerolledRoll.total,
+                appliedAt: Date.now(),
+                appliedBy: game.user.id
+              }
+            }
+          }
+        });
+
+      await message.update({
+        [`flags.${MODULE_ID}.rerollAttack`]: {
+          replaced: true,
+          rerollMessageId: rerollMessage.id,
+          actorId: actor.id,
+          originalTotal,
+          rerolledTotal:
+            rerolledRoll.total,
+          appliedAt: Date.now(),
+          appliedBy: game.user.id
+        }
+      });
+
+      await this.markUsed(actor);
+
+      return {
+        originalMessage: message,
+        rerollMessage,
+        originalTotal,
+        rerolledTotal: Number(
+          rerolledRoll.total
+        )
+      };
+    } catch (error) {
+      console.error(
+        "Desperate Measures | Nie udalo sie przerzucic ataku.",
+        error
+      );
+
+      ui.notifications.error(
+        "Nie udalo sie przerzucic ostatniego ataku. Sprawdz konsole."
+      );
+
+      return null;
+    }
+  }
 
     const lastRoll = this.getLastRoll(actor);
 
