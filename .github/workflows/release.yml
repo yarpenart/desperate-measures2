@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Download repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Check module version
         shell: bash
@@ -30,65 +30,51 @@ jobs:
             exit 1
           fi
 
-      - name: Prepare module files
+      - name: Prepare module package
         shell: bash
         run: |
+          rm -rf package
           mkdir -p package
 
           cp module.json package/module.json
 
-          if [ -d "scripts" ]; then
+          if [ -d scripts ]; then
             cp -r scripts package/scripts
           fi
 
-          if [ -d "styles" ]; then
+          if [ -d styles ]; then
             cp -r styles package/styles
           fi
 
-          if [ -d "lang" ]; then
+          if [ -d lang ]; then
             cp -r lang package/lang
           fi
 
-          if [ -d "templates" ]; then
+          if [ -d templates ]; then
             cp -r templates package/templates
           fi
 
-          if [ -d "icons" ]; then
+          if [ -d icons ]; then
             cp -r icons package/icons
           fi
 
-          if [ -f "README.md" ]; then
+          if [ -f README.md ]; then
             cp README.md package/README.md
           fi
 
-          echo "Files included in package:"
-          find package -maxdepth 4 -type f
-
-      - name: Create module ZIP
-        shell: bash
-        run: |
           cd package
           zip -r ../desperate-measures.zip .
           cd ..
 
-      - name: Create or update GitHub Release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        shell: bash
-        run: |
-          if gh release view "${GITHUB_REF_NAME}" >/dev/null 2>&1; then
-            echo "Release ${GITHUB_REF_NAME} already exists."
+          echo "Created desperate-measures.zip"
+          unzip -l desperate-measures.zip
 
-            gh release upload "${GITHUB_REF_NAME}" \
-              desperate-measures.zip \
-              module.json \
-              --clobber
-          else
-            echo "Creating release ${GITHUB_REF_NAME}."
-
-            gh release create "${GITHUB_REF_NAME}" \
-              desperate-measures.zip \
-              module.json \
-              --title "Desperate Measures ${GITHUB_REF_NAME}" \
-              --generate-notes
-          fi
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            desperate-measures.zip
+            module.json
+          generate_release_notes: true
+          make_latest: true
+          fail_on_unmatched_files: true
