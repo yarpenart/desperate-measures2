@@ -3,6 +3,7 @@ export const MODULE_ID = "desperate-measures";
 export const MODULE_NAME = "Desperate Measures";
 
 export const SETTINGS = {
+  LANGUAGE: "language",
   BLOODIED_THRESHOLD: "bloodiedThreshold",
   ALLOW_ZERO_HP: "allowZeroHP",
   REQUIRE_COMBAT: "requireCombat",
