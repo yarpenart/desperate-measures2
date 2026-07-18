@@ -1,6 +1,9 @@
 import { RollManager }
   from "../managers/RollManager.js";
 
+import { MODULE_ID }
+  from "../constants/constants.js";
+
 export function registerRollHooks() {
   Hooks.on(
     "dnd5e.rollAbilityCheck",
@@ -48,6 +51,11 @@ export function registerRollHooks() {
       rolls,
       data
     )
+  );
+  Hooks.on(
+    "renderChatMessageHTML",
+    (message, html) =>
+      styleRerolledMessage(message, html)
   );
 }
 
@@ -110,4 +118,44 @@ async function captureAttackRoll(rolls, data) {
       activity?.item?.id ??
       null
   );
+}
+
+function styleRerolledMessage(message, html) {
+  const rerollData = message.getFlag(
+    MODULE_ID,
+    "rerollAttack"
+  );
+
+  if (!rerollData?.replaced) return;
+
+  html.classList.add(
+    "desperate-measures-rerolled-message"
+  );
+
+  const content = html.querySelector(
+    ".message-content"
+  );
+
+  if (
+    !content ||
+    content.querySelector(
+      ".desperate-measures-reroll-status"
+    )
+  ) {
+    return;
+  }
+
+  const status = document.createElement("div");
+  status.className =
+    "desperate-measures-reroll-status";
+
+  const icon = document.createElement("i");
+  icon.className = "fa-solid fa-rotate";
+
+  const label = document.createElement("span");
+  label.textContent =
+    "Ten rzut zostal zastapiony przez Desperate Measures.";
+
+  status.append(icon, label);
+  content.prepend(status);
 }
