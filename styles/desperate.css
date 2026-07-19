@@ -342,3 +342,57 @@
 .desperate-measures-reroll-flavor > strong {
   color: #8f1717;
 }
+
+.desperate-measures-rules {
+  line-height: 1.5;
+}
+
+.desperate-measures-rules h1 {
+  border-bottom: 2px solid #8f1717;
+  color: #8f1717;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.35rem;
+}
+
+.desperate-measures-rules h2 {
+  border-bottom: 1px solid var(--color-border-light-primary, #777);
+  margin-top: 1.5rem;
+  padding-bottom: 0.2rem;
+}
+
+.desperate-measures-rules h3 {
+  color: #8f1717;
+  margin-top: 1rem;
+}
+
+.desperate-measures-rules h3 i {
+  margin-right: 0.3rem;
+}
+
+.desperate-measures-rules li + li {
+  margin-top: 0.3rem;
+}
+
+.desperate-measures-rules table {
+  margin: 0.75rem 0;
+  width: 100%;
+}
+
+.desperate-measures-rules th,
+.desperate-measures-rules td {
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.desperate-measures-rules .desperate-rules-lead {
+  font-size: 1.05em;
+}
+
+.desperate-measures-rules .desperate-rules-warning {
+  background: color-mix(in srgb, #8f1717 12%, transparent);
+  border: 1px solid #8f1717;
+  border-radius: 5px;
+  margin: 0.75rem 0;
+  padding: 0.65rem 0.8rem;
+}

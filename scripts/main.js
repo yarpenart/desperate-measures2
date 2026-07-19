@@ -33,6 +33,9 @@ import {
 import { BloodiedManager }
   from "./managers/BloodiedManager.js";
 
+import { RulesJournal }
+  from "./journal/RulesJournal.js";
+
 console.log(
   `${MODULE_NAME} | Main module imported successfully`
 );
@@ -67,6 +70,8 @@ Hooks.once("ready", async () => {
 
     await BloodiedManager.update(actor);
   }
+
+  await RulesJournal.initialize();
 
   console.log(
     `${MODULE_NAME} | Ready completed`
